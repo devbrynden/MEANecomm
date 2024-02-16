@@ -41,6 +41,44 @@ let createUser = async (req, res) => {
     }
 };
 
+let loginUser = async (req, res) => {
+    const email    = req.body.email;
+    const password = req.body.password;
+
+    if (!email || !password) {
+        return res.status(400).json({
+            "message": "Missing required information!"
+        });
+    }
+
+    try {
+        const user = await userModel.findOne({"email": email}).exec();
+        
+        if (user) {
+            var passwordMatch = await bcrypt.compare(password, user.password);
+
+            if (passwordMatch) {
+                res.status(201).json({
+                    "message": "Logged in!"
+                });
+            } else {
+                res.status(400).json({
+                    "message": "Incorrect password!"
+                });
+            }
+        } else {
+            res.status(400).json({
+                "message": "No account found."
+            });
+        }
+    } catch (err) {
+        res.status(500).json({
+            "message": err.message
+        });
+    }
+};
+
 module.exports = {
-    createUser: createUser
+    createUser: createUser,
+    loginUser: loginUser
 };
