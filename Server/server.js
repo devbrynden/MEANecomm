@@ -6,21 +6,25 @@
  */
 
 // General Dependencies
-const express = require("express");
-const dotenv  = require("dotenv");
+const express  = require("express");
+const dotenv   = require("dotenv");
+const mongoose = require("mongoose");
 
-// Custom Middleware
-const logger  = require("./middleware/logger.middleware");
-
-dotenv.config();
-
+// Config stuff
+dotenv.config(); // Run this as early as possible to ensure our environment variables are accessible within our application.
 const HOST = process.env.HOST_NAME;
 const PORT = process.env.HOST_PORT;
+const database = require("./config/database.config");
+
+// Middleware
+const logger  = require("./middleware/logger.middleware");
 
 let server = express();
 
 server.use(logger);
 
-server.listen(PORT, () => {
-    console.log("Server is active at %s:%d", HOST, PORT);
+database.once("connected", () => {
+    server.listen(PORT, () => {
+        console.log("Server is active at %s:%d", HOST, PORT);
+    });
 });
